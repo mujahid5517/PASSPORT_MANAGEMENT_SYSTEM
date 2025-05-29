@@ -463,12 +463,149 @@ void searchOldPassport() {
     cout << "Old passport not found.\n";
 }
 void sortNewPassports() {
-
-
+ if (newHead == nullptr || newHead->next == nullptr) {
+        cout << "No new passports to sort or only one passport exists.\n";
+        return;
+    }
+    int sortOption;
+    cout << "Sort New Passports Options:\n1. Sort by Name\n2. Sort by Passport Type\nEnter choice (1 or 2): ";
+    cin >> sortOption;
+    cin.ignore(numeric_limits<streamsize>::max(), '\n'); 
+    if (sortOption != 1 && sortOption != 2) {
+        cout << "Invalid sort option.\n";
+        return;
+    }
+    NewPassport* current;
+    NewPassport* index;
+    for (current = newHead; current != nullptr; current = current->next) {
+        for (index = current->next; index != nullptr; index = index->next) {
+            bool shouldSwap = false;
+            if (sortOption == 1) {
+                if (current->name > index->name) {
+                    shouldSwap = true;
+                } else if (current->name == index->name && current->passType > index->passType) {
+                    shouldSwap = true; 
+                }
+            } else { 
+                if (current->passType > index->passType) {
+                    shouldSwap = true;
+                } else if (current->passType == index->passType && current->name > index->name) {
+                    shouldSwap = true; 
+                }
+            }
+            if (shouldSwap) {          
+                string tempPassType = current->passType;
+                string tempId = current->id;
+                string tempName = current->name;
+                string tempDob = current->dob;
+                string tempNationality = current->nationality;
+                string tempPhoneNumber = current->phoneNumber;
+                string tempCreatedDate = current->createdDate;
+                string tempAppointmentDate = current->appointmentDate;
+                string tempPayment = current->payment;
+                string tempPaymentStatus = current->paymentStatus;
+                current->passType = index->passType;
+                current->id = index->id;
+                current->name = index->name;
+                current->dob = index->dob;
+                current->nationality = index->nationality;
+                current->phoneNumber = index->phoneNumber;
+                current->createdDate = index->createdDate;
+                current->appointmentDate = index->appointmentDate;
+                current->payment = index->payment;
+                current->paymentStatus = index->paymentStatus;
+                index->passType = tempPassType;
+                index->id = tempId;
+                index->name = tempName;
+                index->dob = tempDob;
+                index->nationality = tempNationality;
+                index->phoneNumber = tempPhoneNumber;
+                index->createdDate = tempCreatedDate;
+                index->appointmentDate = tempAppointmentDate;
+                index->payment = tempPayment;
+                index->paymentStatus = tempPaymentStatus;
+            }
+        }
+    }
+    saveNewPassportsToFile();
+    cout << "New passports sorted by " << (sortOption == 1 ? "name" : "passport type") << ".\n";
 }
 void sortOldPassports() {
-
-
+   if (oldHead == nullptr || oldHead->next == nullptr) {
+        cout << "No old passports to sort or only one passport exists.\n";
+        return;
+    }
+    int sortOption;
+    cout << "Sort Old Passports Options:\n1. Sort by Name\n2. Sort by Passport Type\nEnter choice (1 or 2): ";
+    cin >> sortOption;
+    cin.ignore(numeric_limits<streamsize>::max(), '\n'); 
+    if (sortOption != 1 && sortOption != 2) {
+        cout << "Invalid sort option.\n";
+        return;
+    }
+    OldPassport* current;
+    OldPassport* index;
+    for (current = oldHead; current != nullptr; current = current->next) {
+        for (index = current->next; index != nullptr; index = index->next) {
+            bool shouldSwap = false;
+            if (sortOption == 1) { 
+                if (current->name > index->name) {
+                    shouldSwap = true;
+                } else if (current->name == index->name && current->passType > index->passType) {
+                    shouldSwap = true; 
+                }
+            } else { 
+                if (current->passType > index->passType) {
+                    shouldSwap = true;
+                } else if (current->passType == index->passType && current->name > index->name) {
+                    shouldSwap = true; 
+                }
+            }
+            if (shouldSwap) {               
+                string tempPassType = current->passType;
+                string tempId = current->id;
+                string tempName = current->name;
+                string tempDob = current->dob;
+                string tempIssueDate = current->issueDate;
+                string tempExpiredDate = current->expiredDate;
+                string tempPassportNumber = current->passportNumber;
+                string tempAccountNumber = current->accountNumber;
+                double tempBalance = current->balance;
+                string tempCreatedDate = current->createdDate;
+                string tempAppointmentDate = current->appointmentDate;
+                string tempPayment = current->payment;
+                string tempPaymentStatus = current->paymentStatus;
+                current->passType = index->passType;
+                current->id = index->id;
+                current->name = index->name;
+                current->dob = index->dob;
+                current->issueDate = index->issueDate;
+                current->expiredDate = index->expiredDate;
+                current->passportNumber = index->passportNumber;
+                current->accountNumber = index->accountNumber;
+                current->balance = index->balance;
+                current->createdDate = index->createdDate;
+                current->appointmentDate = index->appointmentDate;
+                current->payment = index->payment;
+                current->paymentStatus = index->paymentStatus;
+                index->passType = tempPassType;
+                index->id = tempId;
+                index->name = tempName;
+                index->dob = tempDob;
+                index->issueDate = tempIssueDate;
+                index->expiredDate = tempExpiredDate;
+                index->passportNumber = tempPassportNumber;
+                index->accountNumber = tempAccountNumber;
+                index->balance = tempBalance;
+                index->createdDate = tempCreatedDate;
+                index->appointmentDate = tempAppointmentDate;
+                index->payment = tempPayment;
+                index->paymentStatus = tempPaymentStatus;
+            }
+        }
+    }
+    saveOldPassportsToFile();
+    cout << "Old passports sorted by " << (sortOption == 1 ? "name" : "passport type") << ".\n";
 }
 void displayNewPassports() {
     cout << "\n--- New Passports ---\n";
