@@ -206,20 +206,138 @@ string getFileNameForPassType(const string& passType) {
 }
 
 void saveNewPassportsToFile() {
- 
-    
+  ofstream outRegular(regularFileName, ios::trunc);
+    if (outRegular) {
+        outRegular << "PassType,ID,Name,DOB,Nationality,Phone,CreatedDate,AppointmentDate,Payment,PaymentStatus\n";
+        outRegular.close();
+    }
+    ofstream outUrgent(urgentFileName, ios::trunc);
+    if (outUrgent) {
+        outUrgent << "PassType,ID,Name,DOB,Nationality,Phone,CreatedDate,AppointmentDate,Payment,PaymentStatus\n";
+        outUrgent.close();
+    }
+    NewPassport* temp = newHead;
+    while (temp != nullptr) {
+        string fileName = getFileNameForPassType(temp->passType);
+        ofstream out(fileName, ios::app); // Open in append mode
+        if (!out) {
+            cout << "Error opening file " << fileName << " for writing!\n";
+            return;
+        }
+        out << temp->passType << ","
+            << temp->id << "," << temp->name << ","
+            << temp->dob << "," << temp->nationality << "," << temp->phoneNumber << ","
+            << temp->createdDate << "," << temp->appointmentDate << "," << temp->payment << ","
+            << temp->paymentStatus << "\n";
+        out.close();
+        temp = temp->next;
+    }   
 }
 void saveOldPassportsToFile() {
-
-
+ ofstream outExpiredRegular(expiredRegularFileName, ios::trunc);
+    if (outExpiredRegular) {
+        outExpiredRegular << "PassType,ID,Name,DOB,IssueDate,ExpiredDate,PassportNumber,AccountNumber,Balance,CreatedDate,AppointmentDate,Payment,PaymentStatus\n";
+        outExpiredRegular.close();
+    }
+    ofstream outExpiredUrgent(expiredUrgentFileName, ios::trunc);
+    if (outExpiredUrgent) {
+        outExpiredUrgent << "PassType,ID,Name,DOB,IssueDate,ExpiredDate,PassportNumber,AccountNumber,Balance,CreatedDate,AppointmentDate,Payment,PaymentStatus\n";
+        outExpiredUrgent.close();
+    }
+    OldPassport* temp = oldHead;
+    while (temp != nullptr) {
+        string fileName = getFileNameForPassType(temp->passType);
+        ofstream out(fileName, ios::app); // Open in append mode
+        if (!out) {
+            cout << "Error opening file " << fileName << " for writing!\n";
+            return;
+        }
+        out << temp->passType << "," << temp->id << "," << temp->name << ","
+            << temp->dob << "," << temp->issueDate << "," << temp->expiredDate << ","
+            << temp->passportNumber << "," << temp->accountNumber << "," << fixed << setprecision(2) << temp->balance << ","
+            << temp->createdDate << "," << temp->appointmentDate << "," << temp->payment << ","
+            << temp->paymentStatus << "\n";
+        out.close();
+        temp = temp->next;
+    }
 }
 void loadNewPassportsFromFile() {
-
-
+freeNewPassportList(); 
+    string fileNames[] = {regularFileName, urgentFileName};
+    for (const string& fileName : fileNames) {
+        ifstream in(fileName);
+        if (!in) continue; 
+        string line;
+        getline(in, line); 
+        while (getline(in, line)) {
+            stringstream ss(line);
+            string token;
+            NewPassport* newPass = new NewPassport(); 
+            getline(ss, newPass->passType, ',');
+            getline(ss, newPass->id, ',');
+            getline(ss, newPass->name, ',');
+            getline(ss, newPass->dob, ',');
+            getline(ss, newPass->nationality, ',');
+            getline(ss, newPass->phoneNumber, ',');
+            getline(ss, newPass->createdDate, ',');
+            getline(ss, newPass->appointmentDate, ',');
+            getline(ss, newPass->payment, ',');
+            getline(ss, newPass->paymentStatus); 
+            newPass->next = nullptr;
+            // Add to the end of the list
+            if (newHead == nullptr) {
+                newHead = newPass;
+            } else {
+                NewPassport* temp = newHead;
+                while (temp->next != nullptr) {
+                    temp = temp->next;
+                }
+                temp->next = newPass;
+            }
+        }
+        in.close();
+    }
 }
 void loadOldPassportsFromFile() {
-
-
+ freeOldPassportList(); // Clear existing list before loading
+    string fileNames[] = {expiredRegularFileName, expiredUrgentFileName};
+    for (const string& fileName : fileNames) {
+        ifstream in(fileName);
+        if (!in) continue; // File might not exist yet
+        string line;
+        getline(in, line); // Skip header
+        while (getline(in, line)) {
+            stringstream ss(line);
+            string token;
+            OldPassport* oldPass = new OldPassport(); 
+            getline(ss, oldPass->passType, ',');
+            getline(ss, oldPass->id, ',');
+            getline(ss, oldPass->name, ',');
+            getline(ss, oldPass->dob, ',');
+            getline(ss, oldPass->issueDate, ',');
+            getline(ss, oldPass->expiredDate, ',');
+            getline(ss, oldPass->passportNumber, ',');
+            getline(ss, oldPass->accountNumber, ',');
+            getline(ss, token, ','); // Read balance as string first
+            oldPass->balance = stod(token); 
+            getline(ss, oldPass->createdDate, ',');
+            getline(ss, oldPass->appointmentDate, ',');
+            getline(ss, oldPass->payment, ',');
+            getline(ss, oldPass->paymentStatus);
+            oldPass->next = nullptr;
+            // Add to the end of the list
+            if (oldHead == nullptr) {
+                oldHead = oldPass;
+            } else {
+                OldPassport* temp = oldHead;
+                while (temp->next != nullptr) {
+                    temp = temp->next;
+                }
+                temp->next = oldPass;
+            }
+        }
+        in.close();
+    }
 }
 void createNewPassport() {
 
