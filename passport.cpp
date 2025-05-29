@@ -340,12 +340,246 @@ void loadOldPassportsFromFile() {
     }
 }
 void createNewPassport() {
-
-
+string id, name, dob, nationality, phoneNumber, payment, paymentStatus, passType;
+    int passportTypeChoice;
+    cout << "Select Passport Type:\n1. Regular\n2. Urgent\nEnter choice (1 or 2): ";
+    cin >> passportTypeChoice;
+    cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear buffer
+    const int MAX_ID_LEN = 10;
+    do {
+        cout << "Enter ID (max " << MAX_ID_LEN << " chars, alphanumeric): ";
+        getline(cin, id);
+        if (id.length() > MAX_ID_LEN) {
+            cout << "your size is limit pls try again (max " << MAX_ID_LEN << " chars).\n";
+            continue; // Ask for input again
+        }
+        if (!isAlphanumeric(id)) {
+            cout << "Invalid ID: Must be alphanumeric.\n";
+        } else if (!isUniqueNewID(id)) {
+            cout << "Error: This ID already exists.\n";
+        }
+    } while (id.length() > MAX_ID_LEN || !isAlphanumeric(id) || !isUniqueNewID(id));
+    const int MAX_NAME_LEN = 25;
+    do {
+        cout << "Enter Full Name (max " << MAX_NAME_LEN << " chars, letters only): ";
+        getline(cin, name);
+        if (name.length() > MAX_NAME_LEN) {
+            cout << "your size is limit pls try again (max " << MAX_NAME_LEN << " chars).\n";
+            continue;
+        }
+        if (!isLettersOnly(name)) cout << "Invalid name: Must contain letters only.\n";
+    } while (name.length() > MAX_NAME_LEN || !isLettersOnly(name));
+    do {
+        cout << "Enter Date of Birth (YYYY-MM-DD): ";
+        getline(cin, dob);
+        if (!isValidDate(dob)) cout << "Invalid format. Try again.\n";
+        else if (!isOver18(dob)) cout << "Error: Applicant must be 18 or older.\n";
+    } while (!isValidDate(dob) || !isOver18(dob));
+    const int MAX_NATIONALITY_LEN = 15;
+    do {
+        cout << "Enter Nationality (max " << MAX_NATIONALITY_LEN << " chars, letters only): ";
+        getline(cin, nationality);
+        if (nationality.length() > MAX_NATIONALITY_LEN) {
+            cout << "your size is limit pls try again (max " << MAX_NATIONALITY_LEN << " chars).\n";
+            continue;
+        }
+        if (!isLettersOnly(nationality)) cout << "Invalid nationality: Must contain letters only.\n";
+    } while (nationality.length() > MAX_NATIONALITY_LEN || !isLettersOnly(nationality));
+    const int MAX_PHONE_LEN = 12;
+    do {
+        cout << "Enter Phone Number (max " << MAX_PHONE_LEN << " chars, numbers only): ";
+        getline(cin, phoneNumber);
+        if (phoneNumber.length() > MAX_PHONE_LEN) {
+            cout << "your size is limit pls try again (max " << MAX_PHONE_LEN << " chars).\n";
+            continue;
+        }
+        if (!isNumbersOnly(phoneNumber)) cout << "Invalid phone number: Must contain numbers only.\n";
+    } while (phoneNumber.length() > MAX_PHONE_LEN || !isNumbersOnly(phoneNumber));
+    if (passportTypeChoice == 1) {
+        payment = "5000";
+        passType = "Regular";
+        cout << "Payment Amount: $" << payment << " (Regular Passport)\n";
+    } else if (passportTypeChoice == 2) {
+        payment = "25000";
+        passType = "Urgent";
+        cout << "Payment Amount: $" << payment << " (Urgent Passport)\n";
+    } else {
+        cout << "Invalid passport type choice. Passport creation cancelled.\n";
+        return;
+    }
+    do {
+        cout << "Is payment confirmed? (Yes/No): ";
+        getline(cin, paymentStatus);
+        if (paymentStatus != "Yes" && paymentStatus != "No") {
+            cout << "Invalid status: Must be Yes or No.\n";
+        }
+    } while (paymentStatus != "Yes" && paymentStatus != "No");
+    if (paymentStatus != "Yes") {
+        cout << "Error: Passport cannot be created until payment is confirmed.\n";
+        return;
+    }
+    string createdDate = getCurrentDate();
+    cout << "Created Date (auto-set): " << createdDate << "\n";
+    string appointmentDate;
+    if (passType == "Regular") {
+        appointmentDate = getDateOneMonthLater(createdDate);
+        cout << "Appointment Date (auto-set, 1 month from creation): " << appointmentDate << "\n";
+    } else {
+        appointmentDate = getDateTwoDaysLater(createdDate);
+        cout << "Appointment Date (auto-set, 2 days from creation): " << appointmentDate << "\n";
+    }
+    if (!isValidDate(appointmentDate)) {
+        cout << "Error: Invalid appointment date generated. Passport creation cancelled.\n";
+        return;
+    }
+  // Create a new node and add to the end of the list
+    NewPassport* newPass = new NewPassport;
+    newPass->passType = passType;
+    newPass->id = id;
+    newPass->name = name;
+    newPass->dob = dob;
+    newPass->nationality = nationality;
+    newPass->phoneNumber = phoneNumber;
+    newPass->createdDate = createdDate;
+    newPass->appointmentDate = appointmentDate;
+    newPass->payment = payment;
+    newPass->paymentStatus = paymentStatus;
+    newPass->next = nullptr;
+    if (newHead == nullptr) {
+        newHead = newPass;
+    } else {
+        NewPassport* temp = newHead;
+        while (temp->next != nullptr) {
+            temp = temp->next;
+        }
+        temp->next = newPass;
+    }
+    saveNewPassportsToFile();
+    cout << "New passport added successfully!\n";
 }
 void createOldPassports() {
-
-
+ string persons[5][8] = {
+        {"001", "Abebea", "1990-05-15", "2015-06-01", "2020-06-01", "P123", "ACC1001", "20000.00"},
+        {"002", "Aster", "1985-08-22", "2014-09-10", "2019-09-10", "P234", "ACC1002", "3000.00"},
+        {"003", "abdi", "1992-03-10", "2016-04-15", "2021-04-15", "P345", "ACC1003", "35000.00"},
+        {"004", "Lami", "1988-11-30", "2013-12-05", "2018-12-05", "P456", "ACC1004", "10000.00"},
+        {"005", "Robel", "1995-07-20", "2017-08-25", "2022-08-25", "P567", "ACC1005", "40000.00"},
+    };
+    cout << "--- Create Old Passport ---\n";
+    int searchOption;
+    string searchValue;
+    int index = -1;
+    cout << "Search Old Record By:\n";
+    cout << "1. ID\n2. Name\n3. Passport Number\nEnter choice: ";
+    cin >> searchOption;
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    switch (searchOption) {
+        case 1:
+            cout << "Enter ID (or ## to cancel): ";
+            getline(cin, searchValue);
+            if (searchValue == "##") return;
+            for (int i = 0; i < 5; ++i) {
+                if (persons[i][0] == searchValue) {
+                    index = i;
+                    break;
+                }
+            }
+            break;
+        case 2:
+            cout << "Enter Name: ";
+            getline(cin, searchValue);
+            for (int i = 0; i < 5; ++i) {
+                if (persons[i][1] == searchValue) {
+                    index = i;
+                    break;
+                }
+            }
+            break;
+        case 3:
+            cout << "Enter Passport Number: ";
+            getline(cin, searchValue);
+            for (int i = 0; i < 5; ++i) {
+                if (persons[i][5] == searchValue) {
+                    index = i;
+                    break;
+                }
+            }
+            break;
+        default:
+            cout << "Invalid search option.\n";
+            return;
+    }
+    if (index == -1) {
+        cout << "No matching record found.\n";
+        return;
+    }
+    int typeChoice;
+    string passType="expired";
+    cout << "Select Passport Type:\n1. Expired Regular\n2. Expired Urgent\nEnter choice (1 or 2): ";
+    cin >> typeChoice;
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    if (typeChoice == 1) passType = "ExpiredRegular";
+    else if (typeChoice == 2) passType = "ExpiredUrgent";
+    else {
+        cout << "Invalid passport type choice. Operation cancelled.\n";
+        return;
+    }
+    string enteredId = persons[index][0];
+    string enteredPassportNumber = persons[index][5];
+    if (!isAlphanumeric(enteredId)) {
+        cout << "Invalid ID: Must be alphanumeric.\n";
+        return;
+    }
+    if (!isUniqueOldID(enteredId)) {
+        cout << "Error: This ID already exists in the system.\n";
+        return;
+    }
+    if (!isUniquePassportNumber(enteredPassportNumber)) {
+        cout << "Error: Passport number already exists in the system.\n";
+        return;
+    }
+    // Create and fill old passport object
+    OldPassport* oldPass = new OldPassport();
+    oldPass->passType = passType;
+    oldPass->id = enteredId;
+    oldPass->name = persons[index][1];
+    oldPass->dob = persons[index][2];
+    oldPass->issueDate = persons[index][3];
+    oldPass->expiredDate = persons[index][4];
+    oldPass->passportNumber = enteredPassportNumber;
+    oldPass->accountNumber = persons[index][6];
+    oldPass->balance = stod(persons[index][7]);
+    oldPass->createdDate = getCurrentDate();
+    oldPass->appointmentDate = (passType == "ExpiredRegular")
+                                ? getDateOneMonthLater(oldPass->createdDate)
+                                : getDateTwoDaysLater(oldPass->createdDate);
+    oldPass->payment = "0.0";
+    oldPass->paymentStatus = "Pending";
+    oldPass->next = nullptr;
+    if (oldHead == nullptr) {
+        oldHead = oldPass;
+    } else {
+        OldPassport* temp = oldHead;
+        while (temp->next != nullptr) {
+            temp = temp->next;
+        }
+        temp->next = oldPass;
+    }
+    cout << "Old Passport Created:\n";
+    cout << "ID: " << oldPass->id
+         << " | Name: " << oldPass->name
+         << " | DOB: " << oldPass->dob
+         << " | Issue Date: " << oldPass->issueDate
+         << " | Expired Date: " << oldPass->expiredDate
+         << " | Passport No.: " << oldPass->passportNumber
+         << " | Balance: $" << fixed << setprecision(2) << oldPass->balance
+         << " | Type: " << oldPass->passType
+         << " | Created: " << oldPass->createdDate
+         << " | Appointment: " << oldPass->appointmentDate
+         << " | Payment: " << oldPass->payment
+         << " | Status: " << oldPass->paymentStatus << "\n";
+    saveOldPassportsToFile();
+    cout << "--- Passport creation completed ---\n";
 }
 void updateNewPassport() {
 
