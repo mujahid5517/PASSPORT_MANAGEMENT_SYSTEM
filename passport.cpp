@@ -418,16 +418,49 @@ void sortOldPassports() {
 
 }
 void displayNewPassports() {
-
-
+    cout << "\n--- New Passports ---\n";
+    if (newHead == nullptr) {
+        cout << "No new passports to display.\n";
+        return;
+    }
+    NewPassport* temp = newHead;
+    while (temp != nullptr) {
+        cout << "--------------------------------\n";
+        cout << "Passport Type: " << temp->passType << "\n";
+        // Removed display for Site Location, City, Office
+        cout << "ID: " << temp->id << "\n";
+        cout << "Name: " << temp->name << "\n";
+        cout << "DOB: " << temp->dob << "\n";
+        cout << "Nationality: " << temp->nationality << "\n";
+        cout << "Phone Number: " << temp->phoneNumber << "\n";
+        cout << "Created Date: " << temp->createdDate << "\n";
+        cout << "Appointment Date: " << temp->appointmentDate << "\n";
+        cout << "Payment: " << temp->payment << "\n";
+        cout << "Payment Status: " << temp->paymentStatus << "\n";
+        temp = temp->next;
+    }
+    cout << "--------------------------------\n";
 }
 void displayOldPassports() {
-
-
+    if (oldHead == nullptr) {
+        cout << "No old passports found.\n";
+        return;
+    }
+    cout << "\n-- List of Old Passports --\n";
+    OldPassport* temp = oldHead;
+    while (temp != nullptr) {
+        cout << "Type: " << temp->passType << ", ID: " << temp->id << ", Name: " << temp->name
+             << ", DOB: " << temp->dob << ", Issue Date: " << temp->issueDate
+             << ", Expiry Date: " << temp->expiredDate << ", Passport Number: " << temp->passportNumber
+             << ", Account Number: " << temp->accountNumber << ", Balance: $" << fixed << setprecision(2) << temp->balance
+             << ", Created: " << temp->createdDate << ", Appointment: " << temp->appointmentDate
+             << ", Payment: $" << temp->payment << ", Status: " << temp->paymentStatus << "\n";
+        temp = temp->next;
+    }
 }
 void freeNewPassportList() {
    
-    
+   
 }
 void freeOldPassportList() {
 
