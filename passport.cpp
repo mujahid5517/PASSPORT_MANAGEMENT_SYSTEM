@@ -246,12 +246,65 @@ void deleteOldPassport() {
 
 }
 void searchNewPassport() {
-
-
+   int choice;
+    cout << "Search New Passport By:\n1. ID\n2. Name\nEnter choice: ";
+    cin >> choice;
+    cin.ignore();
+    string input;
+    if (choice == 1) {
+        cout << "Enter  ID to search: ";
+    } else if (choice == 2) {
+        cout << "Enter  Name to search: ";
+    } else {
+        cout << "Invalid choice.\n";
+        return;
+    }
+    getline(cin, input);
+    NewPassport* temp = newHead;
+    while (temp != nullptr) {
+        if ((choice == 1 && temp->id == input) || (choice == 2 && temp->name == input)) {
+            cout << "New Passport Found:\n";
+            cout << "Type: " << temp->passType << ", ID: " << temp->id << ", Name: " << temp->name
+                 << ", DOB: " << temp->dob << ", Nationality: " << temp->nationality
+                 << ", Phone: " << temp->phoneNumber
+                 << ", Created: " << temp->createdDate << ", Appointment: " << temp->appointmentDate
+                 << ", Payment: $" << temp->payment << ", Status: " << temp->paymentStatus << "\n";
+            return;
+        }
+        temp = temp->next;
+    }
+    cout << "New passport not found.\n";
 }
 void searchOldPassport() {
-
-
+    int choice;
+    cout << "Search Old Passport By:\n1. ID\n2. Name\nEnter choice: ";
+    cin >> choice;
+    cin.ignore();  
+    string input;
+    if (choice == 1) {
+        cout << "Enter Old Passport ID to search: ";
+    } else if (choice == 2) {
+        cout << "Enter Old Passport Name to search: ";
+    } else {
+        cout << "Invalid choice.\n";
+        return;
+    }
+    getline(cin, input);
+    OldPassport* temp = oldHead;
+    while (temp != nullptr) {
+        if ((choice == 1 && temp->id == input) || (choice == 2 && temp->name == input)) {
+            cout << "Old Passport Found:\n";
+            cout << "Type: " << temp->passType << ", ID: " << temp->id << ", Name: " << temp->name
+                 << ", DOB: " << temp->dob << ", Issue Date: " << temp->issueDate
+                 << ", Expiry Date: " << temp->expiredDate << ", Passport Number: " << temp->passportNumber
+                 << ", Account Number: " << temp->accountNumber << ", Balance: $" << fixed << setprecision(2) << temp->balance
+                 << ", Created: " << temp->createdDate << ", Appointment: " << temp->appointmentDate
+                 << ", Payment: $" << temp->payment << ", Status: " << temp->paymentStatus << "\n";
+            return;
+        }
+        temp = temp->next;
+    }
+    cout << "Old passport not found.\n";
 }
 void sortNewPassports() {
 
