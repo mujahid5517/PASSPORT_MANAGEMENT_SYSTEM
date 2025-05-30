@@ -238,12 +238,50 @@ void updateOldPassport() {
 
 }
 void deleteNewPassport() {
-
-
+ string idToDelete;
+    cout << "Enter New Passport ID to delete: ";
+    getline(cin, idToDelete);
+    NewPassport* current = newHead;
+    NewPassport* prev = nullptr;
+    while (current != nullptr && current->id != idToDelete) {
+        prev = current;
+        current = current->next;
+    }
+    if (current == nullptr) {
+        cout << "New passport ID not found.\n";
+        return;
+    }
+    if (prev == nullptr) { // Deleting the head node
+        newHead = current->next;
+    } else { // Deleting a non-head node
+        prev->next = current->next;
+    }
+    delete current; // Free the memory
+    saveNewPassportsToFile();
+    cout << "New passport deleted successfully!\n";
 }
 void deleteOldPassport() {
-
-
+string idToDelete;
+    cout << "Enter Old Passport ID to delete: ";
+    getline(cin, idToDelete);
+    OldPassport* current = oldHead;
+    OldPassport* prev = nullptr;
+    while (current != nullptr && current->id != idToDelete) {
+        prev = current;
+        current = current->next;
+    }
+    if (current == nullptr) {
+        cout << "Old passport ID not found.\n";
+        return;
+    }
+    if (prev == nullptr) { // Deleting the head node
+        oldHead = current->next;
+    } else { // Deleting a non-head node
+        prev->next = current->next;
+    }
+    delete current; // Free the memory
+    saveOldPassportsToFile();
+    cout << "Old passport deleted successfully!\n";
 }
 void searchNewPassport() {
 
