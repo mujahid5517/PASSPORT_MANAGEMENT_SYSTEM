@@ -582,7 +582,138 @@ void createOldPassports() {
     cout << "--- Passport creation completed ---\n";
 }
 void updateNewPassport() {
+string idToUpdate;
+    cout << "Enter New Passport ID to update: ";
+    getline(cin, idToUpdate);
 
+    NewPassport* current = newHead;
+    while (current != nullptr && current->id != idToUpdate) {
+        current = current->next;
+    }
+
+    if (current != nullptr) {
+
+        string newId, newName, newDob, newNationality, newPhoneNumber, newPayment, paymentStatus, newPassType;
+        int passportTypeChoice;
+
+        cout << "Select New Passport Type:\n1. Regular\n2. Urgent\nEnter choice (1 or 2): ";
+        cin >> passportTypeChoice;
+        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear buffer
+
+        const int MAX_ID_LEN = 10;
+        do {
+            cout << "Enter New ID (max " << MAX_ID_LEN << " chars, alphanumeric, current: " << current->id << "): ";
+            getline(cin, newId);
+            if (newId.length() > MAX_ID_LEN) {
+                cout << "your size is limit pls try again (max " << MAX_ID_LEN << " chars).\n";
+                continue;
+            }
+            if (!isAlphanumeric(newId)) {
+                cout << "Invalid ID: Must be alphanumeric.\n";
+            } else if (!isUniqueNewID(newId, current->id)) {
+                cout << "Error: This ID already exists.\n";
+            }
+        } while (newId.length() > MAX_ID_LEN || !isAlphanumeric(newId) || !isUniqueNewID(newId, current->id));
+
+        const int MAX_NAME_LEN = 25;
+        do {
+            cout << "Enter New Full Name (max " << MAX_NAME_LEN << " chars, letters only, current: " << current->name << "): ";
+            getline(cin, newName);
+            if (newName.length() > MAX_NAME_LEN) {
+                cout << "your size is limit pls try again (max " << MAX_NAME_LEN << " chars).\n";
+                continue;
+            }
+            if (!isLettersOnly(newName)) cout << "Invalid name: Must contain letters only.\n";
+        } while (newName.length() > MAX_NAME_LEN || !isLettersOnly(newName));
+
+        do {
+            cout << "Enter New Date of Birth (YYYY-MM-DD, current: " << current->dob << "): ";
+            getline(cin, newDob);
+            if (!isValidDate(newDob)) cout << "Invalid format. Try again.\n";
+            else if (!isOver18(newDob)) cout << "Error: Applicant must be 18 or older.\n";
+        } while (!isValidDate(newDob) || !isOver18(newDob));
+
+
+        const int MAX_NATIONALITY_LEN = 15;
+        do {
+            cout << "Enter New Nationality (max " << MAX_NATIONALITY_LEN << " chars, letters only, current: " << current->nationality << "): ";
+            getline(cin, newNationality);
+            if (newNationality.length() > MAX_NATIONALITY_LEN) {
+                cout << "your size is limit pls try again (max " << MAX_NATIONALITY_LEN << " chars).\n";
+                continue;
+            }
+            if (!isLettersOnly(newNationality)) cout << "Invalid nationality: Must contain letters only.\n";
+        } while (newNationality.length() > MAX_NATIONALITY_LEN || !isLettersOnly(newNationality));
+
+        const int MAX_PHONE_LEN = 12;
+        do {
+            cout << "Enter New Phone Number (max " << MAX_PHONE_LEN << " chars, numbers only, current: " << current->phoneNumber << "): ";
+            getline(cin, newPhoneNumber);
+            if (newPhoneNumber.length() > MAX_PHONE_LEN) {
+                cout << "your size is limit pls try again (max " << MAX_PHONE_LEN << " chars).\n";
+                continue;
+            }
+            if (!isNumbersOnly(newPhoneNumber)) cout << "Invalid phone number: Must contain numbers only.\n";
+        } while (newPhoneNumber.length() > MAX_PHONE_LEN || !isNumbersOnly(newPhoneNumber));
+
+        if (passportTypeChoice == 1) {
+            newPayment = "5000";
+            newPassType = "Regular";
+            cout << "Payment Amount: $" << newPayment << " (Regular Passport)\n";
+        } else if (passportTypeChoice == 2) {
+            newPayment = "25000";
+            newPassType = "Urgent";
+            cout << "Payment Amount: $" << newPayment << " (Urgent Passport)\n";
+        } else {
+            cout << "Invalid passport type choice. Update cancelled.\n";
+            return;
+        }
+
+        do {
+            cout << "Is payment confirmed? (Yes/No): ";
+            getline(cin, paymentStatus);
+            if (paymentStatus != "Yes" && paymentStatus != "No") {
+                cout << "Invalid status: Must be Yes or No.\n";
+            }
+        } while (paymentStatus != "Yes" && paymentStatus != "No");
+
+        if (paymentStatus != "Yes") {
+            cout << "Error: Passport cannot be updated until payment is confirmed.\n";
+            return;
+        }
+
+        string createdDate = getCurrentDate();
+        cout << "Created Date (auto-set): " << createdDate << "\n";
+
+        string appointmentDate;
+        if (newPassType == "Regular") {
+            appointmentDate = getDateOneMonthLater(createdDate);
+            cout << "Appointment Date (auto-set, 1 month from creation): " << appointmentDate << "\n";
+        } else {
+            appointmentDate = getDateTwoDaysLater(createdDate);
+            cout << "Appointment Date (auto-set, 2 days from creation): " << appointmentDate << "\n";
+        }
+        if (!isValidDate(appointmentDate)) {
+            cout << "Error: Invalid appointment date generated. Passport creation cancelled.\n";
+            return;
+        }
+        // Update the struct fields of the found node
+        current->passType = newPassType;
+        current->id = newId;
+        current->name = newName;
+        current->dob = newDob;
+        current->nationality = newNationality;
+        current->phoneNumber = newPhoneNumber;
+        current->createdDate = createdDate;
+        current->appointmentDate = appointmentDate;
+        current->payment = newPayment;
+        current->paymentStatus = paymentStatus;
+
+        saveNewPassportsToFile();
+        cout << "New passport updated successfully!\n";
+    } else {
+        cout << "New passport ID not found.\n";
+    }
 
 }
 void updateOldPassport() {
@@ -883,11 +1014,24 @@ void displayOldPassports() {
     }
 }
 void freeNewPassportList() {
-   
-   
+    NewPassport* current = newHead;
+    NewPassport* nextNode;
+    while (current != nullptr) {
+        nextNode = current->next;
+        delete current;
+        current = nextNode;
+    }
+    newHead = nullptr;
 }
 void freeOldPassportList() {
-
+ OldPassport* current = oldHead;
+    OldPassport* nextNode;
+    while (current != nullptr) {
+        nextNode = current->next;
+        delete current;
+        current = nextNode;
+    }
+    oldHead = nullptr;
 
 }
 int main() {
