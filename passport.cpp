@@ -717,8 +717,144 @@ string idToUpdate;
 
 }
 void updateOldPassport() {
+ string idToUpdate;
+    cout << "Enter Old Passport ID to update: ";
+    getline(cin, idToUpdate);
 
+    OldPassport* current = oldHead;
+    while (current != nullptr && current->id != idToUpdate) {
+        current = current->next;
+    }
 
+    if (current != nullptr) {
+
+        string newId, newName, newDob, enteredPassportNumber, enteredAccountNumber, newPayment, newPaymentStatus, newPassType;
+        double enteredBalance;
+        int urgencyChoice;
+        cout << "Select Urgency:\n1. Regular\n2. Urgent\nEnter choice (1 or 2): ";
+        cin >> urgencyChoice;
+        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear buffer
+
+        newPassType = std::string("Expired") + (urgencyChoice == 1 ? "Regular" : "Urgent");
+        const int MAX_ID_LEN = 10;
+        do {
+            cout << "Enter New ID (max " << MAX_ID_LEN << " chars, alphanumeric, current: " << current->id << "): ";
+            getline(cin, newId);
+            if (newId.length() > MAX_ID_LEN) {
+                cout << "your size is limit pls try again (max " << MAX_ID_LEN << " chars).\n";
+                continue;
+            }
+            if (!isAlphanumeric(newId)) {
+                cout << "Invalid ID: Must be alphanumeric.\n";
+            } else if (!isUniqueOldID(newId, current->id)) {
+                cout << "Error: This ID already exists.\n";
+            }
+        } while (newId.length() > MAX_ID_LEN || !isAlphanumeric(newId) || !isUniqueOldID(newId, current->id));
+
+        const int MAX_NAME_LEN = 25;
+        do {
+            cout << "Enter New Full Name (max " << MAX_NAME_LEN << " chars, letters only, current: " << current->name << "): ";
+            getline(cin, newName);
+            if (newName.length() > MAX_NAME_LEN) {
+                cout << "your size is limit pls try again (max " << MAX_NAME_LEN << " chars).\n";
+                continue;
+            }
+            if (!isLettersOnly(newName)) cout << "Invalid name: Must contain letters only.\n";
+        } while (newName.length() > MAX_NAME_LEN || !isLettersOnly(newName));
+
+        do {
+            cout << "Enter New Date of Birth (YYYY-MM-DD, current: " << current->dob << "): ";
+            getline(cin, newDob);
+            if (!isValidDate(newDob)) cout << "Invalid format. Try again.\n";
+        } while (!isValidDate(newDob));
+
+        const int MAX_PASSPORT_NUM_LEN = 8; 
+        do {
+            cout << "Confirm Passport Number (current: " << current->passportNumber << ", max " << MAX_PASSPORT_NUM_LEN << " chars): ";
+            getline(cin, enteredPassportNumber);
+            if (enteredPassportNumber.length() > MAX_PASSPORT_NUM_LEN) {
+                cout << "your size is limit pls try again (max " << MAX_PASSPORT_NUM_LEN << " chars).\n";
+                continue;
+            }
+            if (enteredPassportNumber != current->passportNumber) {
+                cout << "Your passport number is incorrect. Please enter the correct passport number.\n";
+            }
+        } while (enteredPassportNumber.length() > MAX_PASSPORT_NUM_LEN || enteredPassportNumber != current->passportNumber);
+         do {
+            cout << "Confirm your Balance (current: $" << fixed << setprecision(2) << current->balance << "): ";
+            cin >> enteredBalance;
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear buffer
+
+            if (enteredBalance != current->balance) { // New check: balance must match current
+                cout << "Your entered balance is incorrect. Please enter the current balance.\n";
+            }
+        } while ( enteredBalance != current->balance); // Loop until valid and matching balance
+
+        double paymentAmount = 0.0; // Declare and initialize paymentAmount as double
+        if (urgencyChoice == 1) {
+            newPayment = "5000";
+            paymentAmount = 5000.0; // Assign double value
+            cout << "Payment Amount: $" << newPayment << " (Regular Passport)\n";
+        } else if (urgencyChoice == 2) {
+            newPayment = "25000";
+            paymentAmount = 25000.0; // Assign double value
+            cout << "Payment Amount: $" << newPayment << " (Urgent Passport)\n";
+        } else {
+            cout << "Invalid urgency choice. Update cancelled.\n";
+            return;
+        }
+        if (enteredBalance < paymentAmount) {
+            cout << "Your balance is minimum. Passport cannot be updated.\n";
+            return;
+        } else {
+            enteredBalance -= paymentAmount;
+            cout << "Payment successful. New balance: $" << fixed << setprecision(2) << enteredBalance << "\n";
+        }
+
+        do {
+            cout << "Is payment confirmed? (Yes/No): ";
+            getline(cin, newPaymentStatus);
+            if (newPaymentStatus != "Yes" && newPaymentStatus != "No") {
+                cout << "Invalid status: Must be Yes or No.\n";
+            }
+        } while (newPaymentStatus != "Yes" && newPaymentStatus != "No");
+
+        if (newPaymentStatus != "Yes") {
+            cout << "Error: Passport cannot be updated until payment is confirmed.\n";
+            return;
+        }
+
+        string createdDate = getCurrentDate();
+        cout << "Created Date (auto-set): " << createdDate << "\n";
+
+        string appointmentDate;
+        if (newPassType == "ExpiredRegular") {
+            appointmentDate = getDateOneMonthLater(createdDate);
+            cout << "Appointment Date (auto-set, 1 month from creation): " << appointmentDate << "\n";
+        } else { // ExpiredUrgent
+            appointmentDate = getDateTwoDaysLater(createdDate);
+            cout << "Appointment Date (auto-set, 2 days from creation): " << appointmentDate << "\n";
+        }
+        if (!isValidDate(appointmentDate)) {
+            cout << "Error: Invalid appointment date generated. Passport update cancelled.\n";
+            return;
+        }
+        current->passType = newPassType;
+        current->id = newId;
+        current->name = newName;
+        current->dob = newDob;
+        current->passportNumber = enteredPassportNumber;
+        current->accountNumber = enteredAccountNumber;
+        current->balance = enteredBalance;
+        current->createdDate = createdDate;
+        current->appointmentDate = appointmentDate;
+        current->payment = newPayment;
+        current->paymentStatus = newPaymentStatus;
+        saveOldPassportsToFile();
+        cout << "Old passport updated successfully!\n";
+    } else {
+        cout << "Old passport ID not found.\n";
+    }
 }
 void deleteNewPassport() {
  string idToDelete;
